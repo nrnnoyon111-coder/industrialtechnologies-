@@ -1,54 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IND TECH | ADMIN PANEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Cabinet+Grotesk:wght@800;900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f4f4; }
-        .login-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; border-radius: 4px; background-color: #4285f4; color: white; }
-        button:hover { background-color: #357ae8; }
+        /* --- Themes (Matched with your existing UI) --- */
+        :root {
+            --bg: #f5f5f7; 
+            --glass-bg: rgba(255, 255, 255, 0.22); 
+            --glass-border: rgba(255, 255, 255, 0.5); 
+            --glass-shadow: rgba(0, 0, 0, 0.05); 
+            --glass-highlight: rgba(255, 255, 255, 0.9); 
+            --text-main: #1d1d1f; 
+            --text-dim: #86868b; 
+            --input-bg: rgba(255, 255, 255, 0.7); 
+            --accent: #0071e3; 
+            --accent-glow: rgba(0, 113, 227, 0.2); 
+            --blob-1: #dbdaea; --blob-2: #d2e3fc; --blob-3: #e2f4f2;
+            --warning: #ff9f0a;
+            --danger: #ff3b30;
+        }
+        [data-theme="dark"] {
+            --bg: #000000; 
+            --glass-bg: rgba(30, 30, 35, 0.35); 
+            --glass-border: rgba(255, 255, 255, 0.15); 
+            --glass-shadow: rgba(0, 0, 0, 0.6); 
+            --glass-highlight: rgba(255, 255, 255, 0.25); 
+            --text-main: #f2f2f7; 
+            --text-dim: #aeaeae; 
+            --input-bg: rgba(255, 255, 255, 0.05); 
+            --accent: #0a84ff; 
+            --accent-glow: rgba(10, 132, 255, 0.4); 
+            --blob-1: #bf5af2; --blob-2: #0a84ff; --blob-3: #ff9f0a;
+            --warning: #ff9f0a;
+            --danger: #ff453a;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; text-transform: uppercase; }
+        body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 40px; -webkit-font-smoothing: antialiased; position: relative; overflow-x: hidden; }
+        
+        /* --- Ambient Background --- */
+        .ambient-container { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; z-index: -1; pointer-events: none; filter: blur(70px); opacity: 0.85; }
+        .blob { position: absolute; width: 320px; height: 320px; border-radius: 50%; mix-blend-mode: multiply; animation: orbit 25s infinite linear; }
+        [data-theme="dark"] .ambient-container { opacity: 0.35; filter: blur(110px); }
+        .blob-one { background: var(--blob-1); top: 10%; left: 15%; animation-duration: 25s; }
+        .blob-two { background: var(--blob-2); bottom: 15%; right: 10%; animation-duration: 30s; animation-direction: reverse; }
+        .blob-three { background: var(--blob-3); top: 45%; left: 35%; animation-duration: 22s; }
+
+        @keyframes orbit {
+            0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+            33% { transform: translate(120px, 80px) scale(1.1) rotate(120deg); }
+            66% { transform: translate(-70px, 130px) scale(0.9) rotate(240deg); }
+            100% { transform: translate(0px, 0px) scale(1) rotate(360deg); }
+        }
+
+        /* --- Header & Tabs --- */
+        header { background: var(--glass-bg); backdrop-filter: blur(50px); padding: 18px 5%; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 30px var(--glass-shadow); }
+        .brand { font-family: 'Syncopate', sans-serif; font-size: 0.9rem; letter-spacing: 2px; font-weight: 700;}
+        .brand span { color: var(--warning); }
+        .theme-toggle { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 8px 14px; border-radius: 99px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        
+        .nav-tabs { display: flex; background: var(--glass-bg); margin: 20px 4%; padding: 5px; border-radius: 99px; border: 1px solid var(--glass-border); gap: 5px; box-shadow: 0 10px 30px var(--glass-shadow); }
+        .tab { flex: 1; padding: 12px 5px; text-align: center; border-radius: 99px; font-size: 11px; font-weight: 800; color: var(--text-dim); text-decoration: none; letter-spacing: 1px; }
+        .tab.active { background: var(--input-bg); color: var(--warning); border: 1px solid var(--glass-border); box-shadow: 0 0 10px rgba(255, 159, 10, 0.2); }
+        
+        main { padding: 0 4%; position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+
+        .section-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 16px; font-weight: 900; color: var(--text-main); letter-spacing: 1px; margin: 25px 0 15px 0; border-left: 4px solid var(--warning); padding-left: 10px; }
+
+        /* --- Control Cards Grid --- */
+        .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .admin-card { background: var(--glass-bg); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px var(--glass-shadow); cursor: pointer; transition: transform 0.2s; }
+        .admin-card:hover { transform: translateY(-5px); border-color: var(--warning); box-shadow: 0 15px 30px rgba(255, 159, 10, 0.15); }
+        .admin-card h4 { font-family: 'Cabinet Grotesk', sans-serif; font-size: 14px; margin-bottom: 5px; color: var(--text-main); }
+        .admin-card p { font-size: 9px; color: var(--text-dim); font-weight: 700; letter-spacing: 0.5px; }
+        .icon { font-size: 24px; margin-bottom: 10px; display: block; }
+
+        /* --- Search & Edit Section (Hidden by default) --- */
+        .edit-panel { display: none; background: var(--glass-bg); backdrop-filter: blur(40px); border: 1px solid var(--warning); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px var(--glass-shadow); margin-bottom: 30px; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .edit-panel.active { display: block; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .panel-header h3 { font-family: 'Cabinet Grotesk', sans-serif; font-size: 16px; color: var(--warning); }
+        .close-btn { background: transparent; border: none; color: var(--danger); font-weight: 900; font-size: 16px; cursor: pointer; }
+
+        label { font-size: 9px; font-weight: 800; color: var(--text-dim); margin-bottom: 6px; display: block; margin-left: 4px; margin-top: 12px; }
+        input[type="text"], input[type="number"], select { width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; color: var(--text-main); font-size: 12px; font-weight: 600; outline: none; margin-bottom: 5px; }
+        input:focus, select:focus { border-color: var(--warning); box-shadow: 0 0 0 3px rgba(255, 159, 10, 0.2); }
+
+        .search-row { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 20px; }
+        .search-row input { margin-bottom: 0; }
+        .btn-small { background: var(--warning); color: #000; padding: 0 20px; border: none; border-radius: 12px; font-weight: 900; font-size: 11px; cursor: pointer; }
+
+        .action-btn { width: 100%; background: var(--warning); color: #000; padding: 14px; border: none; border-radius: 12px; font-weight: 900; font-size: 11px; letter-spacing: 1px; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 159, 10, 0.3); }
+        
     </style>
 </head>
 <body>
 
-<div class="login-box">
-    <h2>Admin Login</h2>
-    <p>Please login with your Google account to access the admin panel.</p>
-    <button id="loginBtn">Login with Google</button>
+<div class="ambient-container">
+    <div class="blob blob-one"></div>
+    <div class="blob blob-two"></div>
+    <div class="blob blob-three"></div>
 </div>
 
+<header>
+    <div class="brand">IND TECH <span>ADMIN</span></div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌓 DARK MODE</button>
+</header>
+
+<div class="nav-tabs">
+    <a href="index.html" class="tab">REGISTER</a>
+    <a href="delivery.html" class="tab">DELIVERY</a>
+    <a href="history.html" class="tab">HISTORY</a>
+    <a href="admin.html" class="tab active">CONTROL</a>
+</div>
+
+<main>
+    <div class="section-title">CONTROL CENTER</div>
+    
+    <div class="admin-grid">
+        <div class="admin-card" onclick="openPanel('customerPanel')">
+            <span class="icon">👤</span>
+            <h4>CLIENT DETAILS</h4>
+            <p>Edit Name, Hardware, S/N</p>
+        </div>
+        <div class="admin-card" onclick="openPanel('financePanel')">
+            <span class="icon">💰</span>
+            <h4>FINANCE & BILLING</h4>
+            <p>Update Amounts, Dues, Invoices</p>
+        </div>
+        <div class="admin-card" onclick="openPanel('statusPanel')">
+            <span class="icon">🔄</span>
+            <h4>JOB STATUS</h4>
+            <p>Change Pending to Delivered</p>
+        </div>
+        <div class="admin-card" onclick="openPanel('dangerPanel')" style="border-color: var(--danger);">
+            <span class="icon">⚠️</span>
+            <h4 style="color: var(--danger);">DELETE RECORD</h4>
+            <p>Permanently remove log</p>
+        </div>
+    </div>
+
+    <!-- Client Details Edit Panel -->
+    <div id="customerPanel" class="edit-panel">
+        <div class="panel-header">
+            <h3>EDIT CLIENT DETAILS</h3>
+            <button class="close-btn" onclick="closePanels()">✖</button>
+        </div>
+        <div class="search-row">
+            <input type="text" id="searchTag1" placeholder="ENTER TAG ID (e.g. 26092-01)">
+            <button class="btn-small" onclick="fetchRecordData('searchTag1', 'customerForm')">FIND</button>
+        </div>
+        
+        <div id="customerForm" style="display: none;">
+            <input type="hidden" id="editRow1">
+            <label>CLIENT FULL NAME</label>
+            <input type="text" id="editName">
+            <label>HARDWARE MODEL</label>
+            <input type="text" id="editModel">
+            <label>SERIAL NUMBER</label>
+            <input type="text" id="editSerial">
+            <button class="action-btn" onclick="saveEdits('customer')">SAVE CHANGES</button>
+        </div>
+    </div>
+
+    <!-- Finance Edit Panel -->
+    <div id="financePanel" class="edit-panel">
+        <div class="panel-header">
+            <h3>EDIT FINANCE & BILLING</h3>
+            <button class="close-btn" onclick="closePanels()">✖</button>
+        </div>
+        <div class="search-row">
+            <input type="text" id="searchTag2" placeholder="ENTER TAG ID (e.g. 26092-01)">
+            <button class="btn-small" onclick="fetchRecordData('searchTag2', 'financeForm')">FIND</button>
+        </div>
+        
+        <div id="financeForm" style="display: none;">
+            <input type="hidden" id="editRow2">
+            <label>PAYMENT STATUS</label>
+            <select id="editPayStatus">
+                <option value="PAID">PAID</option>
+                <option value="DUE">DUE</option>
+                <option value="FREE SERVICE">FREE SERVICE</option>
+            </select>
+            <label>TOTAL FINANCIAL AMOUNT</label>
+            <input type="number" id="editAmount">
+            <label>INVOICE CODE</label>
+            <input type="text" id="editInvoice">
+            <button class="action-btn" onclick="saveEdits('finance')">UPDATE BILLING</button>
+        </div>
+    </div>
+
+</main>
+
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDI80wJ04fJCXTKZX7sJMsOZGA_G42sQC4",
-    authDomain: "ind-tech-admin.firebaseapp.com",
-    projectId: "ind-tech-admin",
-    storageBucket: "ind-tech-admin.firebasestorage.app",
-    messagingSenderId: "580429399032",
-    appId: "1:580429399032:web:a2e8c1b27481126061cc0d",
-    measurementId: "G-V2GHSG69RP"
-  };
+    // Your exact Google Script URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyWdj8Jw_WDSrZx4pQTp2cqqDpWUoMLg32Aqk-bdIalxRYXDw5d1kkN9idO7IeQpMUrOw/exec';
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
+    window.onload = () => {
+        if(localStorage.getItem('theme') === 'dark') { 
+            document.documentElement.setAttribute('data-theme', 'dark'); 
+            document.getElementById('themeBtn').innerText = "☀️ LIGHT MODE"; 
+        }
+    };
 
-  const auth = firebase.auth();
-  const provider = new firebase.auth.GoogleAuthProvider();
+    function toggleTheme() {
+        if(document.documentElement.getAttribute('data-theme') === 'dark') {
+            document.documentElement.removeAttribute('data-theme'); 
+            localStorage.setItem('theme', 'light'); 
+            document.getElementById('themeBtn').innerText = "🌓 DARK MODE";
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark'); 
+            localStorage.setItem('theme', 'dark'); 
+            document.getElementById('themeBtn').innerText = "☀️ LIGHT MODE";
+        }
+    }
 
-  document.getElementById('loginBtn').addEventListener('click', () => {
-      auth.signInWithPopup(provider).then((result) => {
-          alert('Login successful!');
-          // Redirect or change UI here
-      }).catch((error) => {
-          console.error(error);
-          alert('Login failed. Please try again.');
-      });
-  });
+    function openPanel(panelId) {
+        closePanels();
+        document.getElementById(panelId).classList.add('active');
+    }
+
+    function closePanels() {
+        document.querySelectorAll('.edit-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('customerForm').style.display = "none";
+        document.getElementById('financeForm').style.display = "none";
+    }
+
+    // Dummy function to demonstrate fetching - requires Backend Update
+    function fetchRecordData(inputId, formId) {
+        const tagId = document.getElementById(inputId).value;
+        if(!tagId) return alert("Please enter a TAG ID");
+        
+        // This button will fetch specific data from your Google Sheet using Tag ID.
+        // For now, it reveals the form layout.
+        document.getElementById(formId).style.display = "block";
+        alert("System will search Database for Tag: " + tagId + "\n(Need to add 'searchByTag' function in your Apps Script)");
+    }
+
+    // Dummy function to save changes - requires Backend Update
+    function saveEdits(type) {
+        alert(type.toUpperCase() + " data updated successfully!\n(Need to add 'editRecord' function in your Apps Script to save directly to the sheet)");
+        closePanels();
+    }
 </script>
-
 </body>
 </html>
